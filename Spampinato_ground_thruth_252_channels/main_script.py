@@ -10,9 +10,11 @@ import matplotlib.pyplot as plt
 
 import spiketoolkit as st
 import spikeextractors as se
-from spiketoolkit.comparison import (setup_comparison_study, run_study_sorters,
-            aggregate_sorting_comparison, aggregate_performances_table)
-from spiketoolkit.comparison.groundtruthstudy import copy_sorting
+from spikecomparison import GroundTruthStudy
+#~ from spiketoolkit.comparison import (setup_comparison_study, run_study_sorters,
+            #~ aggregate_sorting_comparison, aggregate_performances_table)
+#~ from spiketoolkit.comparison.groundtruthstudy import copy_sorting
+
 
 
 
@@ -43,13 +45,13 @@ ground_truth_folder = basedir + 'ground_truth/'
 def setup_study():
     rec_names = [
         '20160415_patch2',
-        '20160426_patch2', 
-        '20160426_patch3', 
-        '20170621_patch1',
-        '20170713_patch1',
-        '20170725_patch1',
-        '20170728_patch2',
-        '20170803_patch1',
+        #~ '20160426_patch2', 
+        #~ '20160426_patch3', 
+        #~ '20170621_patch1',
+        #~ '20170713_patch1',
+        #~ '20170725_patch1',
+        #~ '20170728_patch2',
+        #~ '20170803_patch1',
     ]
     
     gt_dict = {}
@@ -67,7 +69,7 @@ def setup_study():
             offset = int(re.findall('padding = (\d+)', f.read())[0])
         
         # recording
-        rec = se.BinDatRecordingExtractor(mea_filename, 20000., 256, 'uint16', offset=offset, frames_first=True)
+        rec = se.BinDatRecordingExtractor(mea_filename, 20000., 256, 'uint16', offset=offset, time_axis=0)
         
         # this reduce channel count to 252
         rec = se.load_probe_file(rec, basedir + 'mea_256.prb')
@@ -80,33 +82,44 @@ def setup_study():
 
         gt_dict[rec_name] = (rec, sorting_gt)
     
-    setup_comparison_study(study_folder, gt_dict)
+    GroundTruthStudy.create(study_folder, gt_dict)
         
 
 def run_all():
-    #~ sorter_list = ['tridesclous', 'herdingspikes', 'mountainsort4' ]
-    sorter_list = ['herdingspikes']
-    run_study_sorters(study_folder, sorter_list, mode='keep', engine='loop')
+
+    #~ sorter_list = ['kilosrort', 'kilosrort2', ]
+    #~ sorter_list = ['tridesclous', 'herdingspikes', 'mountainsort4', 'spykingcircus']
+    #~ sorter_list = ['spykingcircus']
+    sorter_list = ['tridesclous']
+    
+    sorter_params = {}
+    #~ sorter_params = {'clean_catalogue_gui':True, 'cluster_method': 'auto'}
+    study = GroundTruthStudy(study_folder)
+    study.run_sorters(sorter_list, sorter_params=sorter_params, mode='overwrite', verbose=True)
     
 
 def collect_results():
     #~ copy_sorting(study_folder)
+
+    study = GroundTruthStudy(study_folder)
+    study.copy_sortings()
+    study.run_comparisons(exhaustive_gt=True)
+
+    comparisons = study.comparisons
+    dataframes = study.aggregate_dataframes()
     
-    comparisons = aggregate_sorting_comparison(study_folder, exhaustive_gt=False)
-    dataframes = aggregate_performances_table(study_folder, exhaustive_gt=False)
-    
-    #~ for (rec_name, sorter_name), comp in comparisons.items():
+    for (rec_name, sorter_name), comp in comparisons.items():
         #~ print()
         #~ print(rec_name, sorter_name)
         #~ print(comp.count)
-        #~ comp.print_summary()
+        comp.print_summary()
         
     
     #~ plt.subplots()
         #~ comp.plot_confusion_matrix()
     
-    print(dataframes.keys())
-    print(dataframes['perf_pooled_with_sum'])
+    #~ print(dataframes.keys())
+    #~ print(dataframes['perf_pooled_with_sum'])
     
         #~ plt.show()
 
