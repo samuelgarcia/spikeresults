@@ -10,11 +10,20 @@ import matplotlib.pyplot as plt
 
 import spiketoolkit as st
 import spikeextractors as se
+<<<<<<< HEAD:Spampinato_ground_thruth_252_channels/main_script.py
 from spikecomparison import GroundTruthStudy
 #~ from spiketoolkit.comparison import (setup_comparison_study, run_study_sorters,
             #~ aggregate_sorting_comparison, aggregate_performances_table)
 #~ from spiketoolkit.comparison.groundtruthstudy import copy_sorting
 
+=======
+
+from spiketoolkit.study import GroundTruthStudy
+
+#~ from spiketoolkit.comparison import (setup_comparison_study, run_study_sorters,
+            #~ aggregate_sorting_comparison, aggregate_performances_table)
+#~ from spiketoolkit.comparison.groundtruthstudy import copy_sorting
+>>>>>>> eade6507cec009a240367286ff701d7d24531db9:Spampinato_mice_retina_mea252ch/main_script.py
 
 
 
@@ -24,11 +33,11 @@ os.environ["NPY_MATLAB_PATH"] = '/home/samuel/smb4k/CRNLDATA/home/samuel.garcia/
 os.environ["KILOSORT2_PATH"] = '/home/samuel/smb4k/CRNLDATA/home/samuel.garcia/Documents/Kilosort2/'
 
 # my working path
-# basedir = '/media/samuel/SamCNRS/DataSpikeSorting/pierre/zenodo/'
+basedir = '/media/samuel/SamCNRS/DataSpikeSorting/pierre/zenodo/'
 #~ basedir = '/media/samuel/dataspikesorting/DataSpikeSortingHD2/Pierre/zenodo/'
 #~ basedir = '/mnt/data/sam/DataSpikeSorting/pierre_zenodo/'
 #~ basedir = '/home/samuel/DataSpikeSorting/Pierre/zenodo/'
-basedir = '/media/samuel/dataspikesorting/DataSpikeSortingHD2/Pierre/zenodo/'
+#~ basedir = '/media/samuel/dataspikesorting/DataSpikeSortingHD2/Pierre/zenodo/'
 
 # input file
 recording_folder = basedir + 'original_files/'
@@ -82,6 +91,7 @@ def setup_study():
 
         gt_dict[rec_name] = (rec, sorting_gt)
     
+<<<<<<< HEAD:Spampinato_ground_thruth_252_channels/main_script.py
     GroundTruthStudy.create(study_folder, gt_dict)
         
 
@@ -112,14 +122,46 @@ def collect_results():
         #~ print()
         #~ print(rec_name, sorter_name)
         #~ print(comp.count)
+=======
+    study = GroundTruthStudy.setup(study_folder, gt_dict)
+
+def run_all():
+    study = GroundTruthStudy(study_folder)
+    sorter_list = ['tridesclous', 'herdingspikes', 'mountainsort4' ]
+    #~ sorter_list = ['herdingspikes']
+    study.run_sorters(sorter_list, mode='keep', engine='loop')
+
+
+def collect_results():
+    study = GroundTruthStudy(study_folder)
+    #~ study.copy_sortings()
+    
+    print(study)
+    
+    study.run_comparisons(exhaustive_gt=False)
+    
+    comparisons = study.comparisons
+    dataframes = study.aggregate_dataframes()
+    
+    
+    for (rec_name, sorter_name), comp in comparisons.items():
+        print()
+        print(rec_name, sorter_name)
+        print(comp.count)
+>>>>>>> eade6507cec009a240367286ff701d7d24531db9:Spampinato_mice_retina_mea252ch/main_script.py
         comp.print_summary()
         
     
     #~ plt.subplots()
         #~ comp.plot_confusion_matrix()
     
+<<<<<<< HEAD:Spampinato_ground_thruth_252_channels/main_script.py
     #~ print(dataframes.keys())
     #~ print(dataframes['perf_pooled_with_sum'])
+=======
+    print(dataframes.keys())
+    print(dataframes['perf_pooled_with_average'])
+>>>>>>> eade6507cec009a240367286ff701d7d24531db9:Spampinato_mice_retina_mea252ch/main_script.py
     
         #~ plt.show()
 
